@@ -3,6 +3,28 @@ from pytils import translit
 from services.transform import get_dict_from_city_str
 
 
+def get_cities(page: int, count: int) -> list:
+    # Получаем словарь состоящий из городов
+
+    if page == 1:
+        line_begin: int = 0
+    else:
+        line_begin: int = (page - 1) * count
+
+    results: list = []
+    with open('data/RU.txt') as f:
+        lines = f.readlines()
+        for i in range(line_begin, line_begin + count):
+
+            try:
+                city: dict = get_dict_from_city_str(lines[i])
+                results.append(city)
+            except:
+                break
+
+    return results
+
+
 def get_city_line_by_id(geonameid: int) -> Union[str, bool]:
     # Получаем строку с городом по geonameid
 
@@ -57,6 +79,31 @@ def get_northern_city(city_1: str, city_2: str) -> dict:
         return {"Error": "There is no cities with such names"}
 
 
+def is_same_time_zone(city_1: str, city_2: str) -> dict:
+    # Вовращает словарь со значением True, если временная зона одинаковая
+
+    if city_1 and city_2:
+        city_1_dict: dict = get_dict_from_city_str(city_1)
+        city_2_dict: dict = get_dict_from_city_str(city_2)
+
+        if (city_1_dict['timezone']) == (city_2_dict['timezone']):
+            return {"Time zones the same": "True"}
+        else:
+            return{"Time zones the same": "False"}
+
+    elif city_1:
+        return {"Error": "There is no city №2"}
+
+    elif city_2:
+        return {"Error": "There is no city №1"}
+
+    else:
+        return {"Error": "There is no cities with such names"}
+
+
+
 def _get_population_from_city_line(city: str) -> float:
-    population = city.split('\t')[14]
-    return float(population)
+    # Возвращает количество жителей города
+
+    return float(city.split('\t')[14])
+
