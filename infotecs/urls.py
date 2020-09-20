@@ -1,6 +1,6 @@
 from django.urls import path
-from infotecs import views
 
+from infotecs import views
 
 urlpatterns = [
     path('api/v1/cities/<int:geonameid>', views.city_by_id),

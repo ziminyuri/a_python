@@ -1,5 +1,10 @@
 from typing import Union
+
 from pytils import translit
+from datetime import datetime
+from pytz import timezone
+from dateutil.relativedelta import relativedelta
+
 from services.transform import get_dict_from_city_str
 
 
@@ -88,8 +93,13 @@ def is_same_time_zone(city_1: str, city_2: str) -> dict:
 
         if (city_1_dict['timezone']) == (city_2_dict['timezone']):
             return {"Time zones the same": "True"}
+
         else:
-            return{"Time zones the same": "False"}
+            timezone_1 = city_1_dict['timezone']
+            timezone_2 = city_2_dict['timezone']
+
+            time_zone_difference = tz_diff(timezone_1, timezone_2)
+            return{"Time zones the same": "False", 'Time zone difference': time_zone_difference}
 
     elif city_1:
         return {"Error": "There is no city №2"}
@@ -101,9 +111,16 @@ def is_same_time_zone(city_1: str, city_2: str) -> dict:
         return {"Error": "There is no cities with such names"}
 
 
-
 def _get_population_from_city_line(city: str) -> float:
     # Возвращает количество жителей города
 
     return float(city.split('\t')[14])
 
+
+def tz_diff(home, away):
+    utcnow = timezone('utc').localize(datetime.utcnow())  # generic time
+    here = utcnow.astimezone(timezone(home)).replace(tzinfo=None)
+    there = utcnow.astimezone(timezone(away)).replace(tzinfo=None)
+
+    offset = relativedelta(here, there)
+    return offset.hours

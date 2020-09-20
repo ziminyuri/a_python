@@ -1,7 +1,11 @@
-from services.city import get_city_line_by_id, get_city_by_ru_name, get_northern_city, is_same_time_zone, get_cities
-from services.transform import get_dict_from_city_str, get_dict_from_2_cities_str
-from services.file import count_number_of_lines_in_file
 from django.http import JsonResponse
+
+from services.city import (get_cities, get_city_by_ru_name,
+                           get_city_line_by_id, get_northern_city,
+                           is_same_time_zone)
+from services.file import count_number_of_lines_in_file
+from services.transform import (get_dict_from_2_cities_str,
+                                get_dict_from_city_str)
 
 
 def city_by_id(request, geonameid: int):
