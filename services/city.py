@@ -44,7 +44,7 @@ def get_city_line_by_id(geonameid: int) -> Union[str, bool]:
 def get_city_by_ru_name(ru_name: str) -> Union[str, bool]:
     # Получаем строку с городом по названию города
 
-    file = open('data/RU.txt', 'r')
+    file = _file_open()
     translit_city_name: str = translit.translify(ru_name)
 
     city_line = ''
@@ -98,7 +98,7 @@ def is_same_time_zone(city_1: str, city_2: str) -> dict:
             timezone_1 = city_1_dict['timezone']
             timezone_2 = city_2_dict['timezone']
 
-            time_zone_difference = tz_diff(timezone_1, timezone_2)
+            time_zone_difference = _tz_diff(timezone_1, timezone_2)
             return{"Time zones the same": "False", 'Time zone difference': time_zone_difference}
 
     elif city_1:
@@ -111,16 +111,46 @@ def is_same_time_zone(city_1: str, city_2: str) -> dict:
         return {"Error": "There is no cities with such names"}
 
 
+def search_cities_by_part_name(part_name: str) -> dict:
+    # Поиск городов по части названия
+
+    file = _file_open()
+    translit_part_name: str = translit.translify(part_name)
+
+    cities: list = []
+    for line in file:
+        i_city_name: str = line.split('\t')[1]
+        if translit_part_name in i_city_name:
+            cities.append(i_city_name)
+
+    search_cities: dict = {}
+
+    if cities:
+        i: int = 1
+        for city in cities:
+            search_cities[i] = city
+            i += 1
+
+    else:
+        search_cities['Result'] = 'No city satisfying the request: ' + part_name
+
+    return search_cities
+
+
 def _get_population_from_city_line(city: str) -> float:
     # Возвращает количество жителей города
 
     return float(city.split('\t')[14])
 
 
-def tz_diff(home, away):
+def _tz_diff(home, away):
     utcnow = timezone('utc').localize(datetime.utcnow())  # generic time
     here = utcnow.astimezone(timezone(home)).replace(tzinfo=None)
     there = utcnow.astimezone(timezone(away)).replace(tzinfo=None)
 
     offset = relativedelta(here, there)
     return offset.hours
+
+
+def _file_open():
+     return open('data/RU.txt', 'r')
