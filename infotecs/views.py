@@ -1,4 +1,6 @@
-from django.http import JsonResponse
+from typing import Union
+
+from django.http import HttpResponse, JsonResponse
 
 from services.city import (get_cities, get_city_by_ru_name,
                            get_city_line_by_id, get_northern_city,
@@ -21,7 +23,7 @@ def city_by_id(request, geonameid: int) -> JsonResponse:
             return JsonResponse(response_data)
 
 
-def cities(request) -> JsonResponse:
+def cities(request) -> Union[JsonResponse, HttpResponse]:
     if request.method == 'GET':
         # Возвращает json с городами с учетом пагинации
         if request.GET.get("filter"):
@@ -43,6 +45,11 @@ def cities(request) -> JsonResponse:
 
             response_data: dict = {}
             if page != 1:
+                if count * page - 1 > lines:
+                    response = HttpResponse()
+                    response.status_code = 406
+                    return response
+
                 previous_page: int = page - 1
                 response_data['previous'] = request.get_host() + request.path + '?page=' + str(previous_page) + '&count=' \
                                             + str(count)
@@ -61,7 +68,7 @@ def info_of_two_cities(request, city_1: str, city_2: str) -> JsonResponse:
         en_city_1 = get_city_by_ru_name(city_1)
         en_city_2 = get_city_by_ru_name(city_2)
 
-        if request.GET.get("param") == 'is_north':
+        if request.GET.get('param') == 'is_north':
             # Возвращает город, который севернее из двух городов или ошибку
             response_data: dict = get_northern_city(en_city_1, en_city_2)
 
@@ -69,8 +76,6 @@ def info_of_two_cities(request, city_1: str, city_2: str) -> JsonResponse:
             # Возвращает True если одинаковая временая зона, False в обратном случае или ошибку
             response_data: dict = is_same_time_zone(en_city_1, en_city_2)
 
-        elif request.GET.get("search"):
-            print('bv')
         else:
             # Метод возвращает информацию о двух городах
             response_data = get_dict_from_2_cities_str(city_1, city_2, en_city_1, en_city_2)

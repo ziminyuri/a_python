@@ -1,9 +1,9 @@
+from datetime import datetime
 from typing import Union
 
-from pytils import translit
-from datetime import datetime
-from pytz import timezone
 from dateutil.relativedelta import relativedelta
+from pytils import translit
+from pytz import timezone
 
 from services.transform import get_dict_from_city_str
 
@@ -64,7 +64,7 @@ def get_city_by_ru_name(ru_name: str) -> Union[str, bool]:
         return False
 
 
-def get_northern_city(city_1: str, city_2: str) -> dict:
+def get_northern_city(city_1: Union[str, bool], city_2: Union[str, bool]) -> dict:
     if city_1 and city_2:
         city_1_dict: dict = get_dict_from_city_str(city_1)
         city_2_dict: dict = get_dict_from_city_str(city_2)
