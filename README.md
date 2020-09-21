@@ -1,4 +1,4 @@
-# Test task for Infortex
+# Test task for Infotecs
 
 Реализовать HTTP-сервер для предоставления информации по географическим объектам.
 Данные взять из географической базы данных GeoNames, по [ссылке](http://download.geonames.org/export/dump/RU.zip).
